@@ -2,7 +2,39 @@
 #include "catch.hpp"
 #include "hash_map.hpp"
 
-TEST_CASE("failing test")
+TEST_CASE("An empty hash map", "[hash_map]")
 {
-	REQUIRE(false);
+	hash_map map{};
+
+	REQUIRE(map.empty());
+	REQUIRE(map.size() == 0u);
+	REQUIRE(map.capacity() >= 0u);
+
+	/*SECTION("insert an element")
+	{
+		auto iter = map.insert(1, 2);
+
+		REQUIRE(iter != map.end());
+		REQUIRE(iter->key == 1);
+		REQUIRE(iter->value == 2);
+
+		REQUIRE(!map.empty());
+		REQUIRE(map.size() == 1u);
+		REQUIRE(map.capacity() >= 1u);
+
+	}*/
+
+	SECTION("inserting an element makes the map not empty")
+	{
+		map.insert(2, 3);
+
+		REQUIRE(!map.empty());
+	}
+
+	SECTION("inserting an element increases the size")
+	{
+		map.insert(1, 2);
+
+		REQUIRE(map.size() == 1u);
+	}
 }
