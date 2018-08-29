@@ -5,7 +5,29 @@ VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "containers", "containers\containers.vcxitems", "{3AD9875C-FAF6-45E6-9477-972D1BFAD22D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\tests.vcxproj", "{180C1858-8A68-43A8-B962-12845A6239D7}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		containers\containers.vcxitems*{180c1858-8a68-43a8-b962-12845a6239d7}*SharedItemsImports = 4
+		containers\containers.vcxitems*{3ad9875c-faf6-45e6-9477-972d1bfad22d}*SharedItemsImports = 9
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Debug|x64.ActiveCfg = Debug|x64
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Debug|x64.Build.0 = Debug|x64
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Debug|x86.ActiveCfg = Debug|Win32
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Debug|x86.Build.0 = Debug|Win32
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Release|x64.ActiveCfg = Release|x64
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Release|x64.Build.0 = Release|x64
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Release|x86.ActiveCfg = Release|Win32
+		{180C1858-8A68-43A8-B962-12845A6239D7}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
