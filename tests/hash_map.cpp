@@ -11,6 +11,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 	REQUIRE(map.capacity() >= 0u);
 
 	REQUIRE(map.begin() == map.end());
+	REQUIRE(map.load_factor() == 0.0);
 
 	SECTION("cannot find values in empty map") {
 		REQUIRE(map.find(1) == map.end());
@@ -35,6 +36,13 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		map.insert(2, 3);
 
 		REQUIRE(!map.empty());
+	}
+
+	SECTION("inserting an element increases the load factor")
+	{
+		map.insert(1, 2);
+
+		REQUIRE(map.load_factor() > 0.0);
 	}
 
 	SECTION("inserting an element increases the size")
@@ -91,6 +99,12 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		auto iter_two = map.find(key_two);
 
 		REQUIRE(iter_one != iter_two);
+
+		REQUIRE(iter_one->key == key_one);
+		REQUIRE(iter_one->value == value_one);
+
+		REQUIRE(iter_two->key == key_two);
+		REQUIRE(iter_two->value == value_two);
 	}
 }
 
