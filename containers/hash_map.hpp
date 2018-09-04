@@ -31,9 +31,17 @@ private:
 		state_type state = state_type::empty;
 
 		slot_type() = default;
-		slot_type(slot_type&& other) noexcept {}
-		slot_type(const slot_type& other) {}
+		slot_type(slot_type&& other) noexcept = default;
+		slot_type(const slot_type& other) = default;
 		~slot_type() noexcept = default;
+
+		template<typename... Args>
+		void set(hash_map::key_type key, Args&&... args)
+		{
+			pair().key = key;
+			pair().value = hash_map::value_type(std::forward<Args>(args)...);
+			state = state_type::full;
+		}
 
 		slot_type& operator=(slot_type&& other) noexcept { return *this; }
 		slot_type& operator=(const slot_type& other) { return *this; }
@@ -120,14 +128,16 @@ public:
 
 	// mutators
 
-	iterator insert(key_type key, const value_type& value) { return {}; }
+	iterator insert(key_type key, const value_type& value) { return emplace(key, value); }
 	iterator insert(key_type key, value_type&& value) { return emplace(key, std::move(value)); }
 
 	template<typename... Args>
-	iterator emplace(key_type, Args&&... args)
+	iterator emplace(key_type key, Args&&... args)
 	{
-		storage.push_back(slot_type{});
-		return {};
+		auto slot = slot_type{};
+		slot.set(key, std::forward<Args>(args)...);
+		storage.push_back(slot);
+		return begin();
 	}
 
 	void erase(const_iterator) {}
