@@ -81,8 +81,8 @@ public:
 
 	public:
 		const_iterator() = default;
-		const_iterator(typename hash_map::storage_type::const_iterator first) noexcept {}
-		const_iterator(iterator other) noexcept {}
+		const_iterator(typename hash_map::storage_type::const_iterator first) noexcept : slot(first) {}
+		const_iterator(iterator other) noexcept : slot(other.slot) {}
 
 
 		const_iterator& operator++() noexcept { return *this; }
@@ -91,8 +91,8 @@ public:
 		reference operator*() const noexcept { return slot->pair(); }
 		pointer operator->() const noexcept { return &slot->pair(); }
 
-		bool operator==(const_iterator other) const noexcept { return false; }
-		bool operator!=(const_iterator other) const noexcept { return false; }
+		bool operator==(const_iterator other) const noexcept { return slot == other.slot; }
+		bool operator!=(const_iterator other) const noexcept { return !(*this == other); }
 	};
 
 	class iterator
@@ -168,13 +168,17 @@ public:
 		return begin();
 	}
 
-	void erase(const_iterator) {}
+	void erase(const_iterator iter) 
+	{
+		if (iter != end()) const_cast<slot_type&>(*iter.slot).release();
+
+	}
 
 	void erase(key_type key)
 	{
 		auto iter = find(key);
 
-		if (iter != end()) iter.slot->release();
+		erase(iter);
 	}
 
 	iterator find(key_type key)
@@ -218,11 +222,19 @@ public:
 		};
 	}
 
-	const_iterator begin() const noexcept { return {}; }
+	const_iterator begin() const noexcept 
+	{ 
+		return {
+				std::find_if(
+					std::begin(storage),
+					std::end(storage),
+					[&](auto& slot) { return slot.state == slot_type::full; })
+		};
+	}
 	const_iterator cbegin() const noexcept { return {}; }
 
 	iterator end() noexcept { return { storage.end() }; }
-	const_iterator end() const noexcept { return {}; }
+	const_iterator end() const noexcept { return { storage.end() }; }
 	const_iterator cend() const noexcept { return {}; }
 
 private:

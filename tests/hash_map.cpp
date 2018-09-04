@@ -5,12 +5,14 @@
 TEST_CASE("An empty hash map", "[hash_map]")
 {
 	hash_map map{};
+	const auto& cmap = map;
 
 	REQUIRE(map.empty());
 	REQUIRE(map.size() == 0u);
 	REQUIRE(map.capacity() >= 0u);
 
 	REQUIRE(map.begin() == map.end());
+	REQUIRE(cmap.begin() == cmap.end());
 	REQUIRE(map.load_factor() == 0.0);
 	REQUIRE(map.max_load_factor() >= map.load_factor());
 
@@ -61,6 +63,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		auto iter = map.find(2);
 
 		REQUIRE(iter != map.end());
+		REQUIRE(hash_map::const_iterator{iter} != cmap.end());
 		REQUIRE(iter->key == 2);
 		REQUIRE(iter->value == 4);
 	}
@@ -148,5 +151,10 @@ TEST_CASE("Non empty hash map", "[hash_map]")
 		map.erase(match);
 
 		REQUIRE(map.find(4) == map.end());
+	}
+
+	SECTION("remove a nonexistant element")
+	{
+		REQUIRE_THROWS(map.erase(7));
 	}
 }
