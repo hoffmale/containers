@@ -108,5 +108,22 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		REQUIRE(iter_two->key == key_two);
 		REQUIRE(iter_two->value == value_two);
 	}
+
+	SECTION("hash map grows storage if load grows too large")
+	{
+		auto max_load = int( map.max_load_factor() * map.capacity() );
+		auto cap = map.capacity();
+
+		for(auto i = 0; i < max_load; ++i)
+		{
+			map.insert(i, 1);
+			CHECK(map.load_factor() <= Approx(map.max_load_factor()));
+			CHECK(map.capacity() == cap);
+		}
+
+		map.insert(max_load + 1, 1);
+		REQUIRE(map.load_factor() <= Approx(map.max_load_factor()));
+		REQUIRE(map.capacity() > cap);
+	}
 }
 
