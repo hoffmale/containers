@@ -134,16 +134,27 @@ public:
 	template<typename... Args>
 	iterator emplace(key_type key, Args&&... args)
 	{
-		auto slot = slot_type{};
-		slot.set(key, std::forward<Args>(args)...);
-		storage.push_back(slot);
+		auto match = find(key);
+		if (match != end()) {
+			match.slot->set(key, std::forward<Args>(args)...);
+		}
+		else {
+			auto slot = slot_type{};
+			slot.set(key, std::forward<Args>(args)...);
+			storage.push_back(slot);
+		}
+
 		return begin();
 	}
 
 	void erase(const_iterator) {}
 	void erase(key_type) {}
 
-	iterator find(key_type) noexcept { return { --storage.end() }; }
+	iterator find(key_type) noexcept
+	{
+		if (empty()) return end();
+		return { std::prev(storage.end()) };
+	}
 	const_iterator find(key_type) const noexcept { return {}; }
 
 	// queries

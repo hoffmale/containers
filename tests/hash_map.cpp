@@ -12,6 +12,10 @@ TEST_CASE("An empty hash map", "[hash_map]")
 
 	REQUIRE(map.begin() == map.end());
 
+	SECTION("cannot find values in empty map") {
+		REQUIRE(map.find(1) == map.end());
+	}
+
 	/*SECTION("insert an element")
 	{
 		auto iter = map.insert(1, 2);
@@ -71,6 +75,22 @@ TEST_CASE("An empty hash map", "[hash_map]")
 
 		REQUIRE(map.find(key)->value == value_two);
 		REQUIRE(map.size() == 1);
+	}
+
+	SECTION("Inserting multiple elements means either can be found")
+	{
+		static const auto key_one = 1;
+		static const auto value_one = 2;
+		static const auto key_two = 3;
+		static const auto value_two = 4;
+
+		map.insert(key_one, value_one);
+		map.insert(key_two, value_two);
+
+		auto iter_one = map.find(key_one);
+		auto iter_two = map.find(key_two);
+
+		REQUIRE(iter_one != iter_two);
 	}
 }
 
