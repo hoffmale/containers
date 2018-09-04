@@ -186,7 +186,7 @@ public:
 	size_type size() const noexcept { return count; }
 	size_type capacity() const noexcept { return storage.capacity(); }
 
-	double load_factor() const noexcept { return size(); }
+	double load_factor() const noexcept { return double(size()) / capacity(); }
 	double max_load_factor() const noexcept { return 0.0; }
 
 	// iterator
