@@ -44,6 +44,8 @@ TEST_CASE("An empty hash map", "[hash_map]")
 	{
 		map.insert(2, 4);
 		REQUIRE(map.find(2) != map.end());
+		REQUIRE(map.find(2)->value == 4);
 	}
+
 }
 

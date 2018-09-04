@@ -133,7 +133,7 @@ public:
 	void erase(const_iterator) {}
 	void erase(key_type) {}
 
-	iterator find(key_type) noexcept { return {}; }
+	iterator find(key_type) noexcept { return begin(); }
 	const_iterator find(key_type) const noexcept { return {}; }
 
 	// queries
@@ -151,7 +151,7 @@ public:
 	const_iterator begin() const noexcept { return {}; }
 	const_iterator cbegin() const noexcept { return {}; }
 
-	iterator end() noexcept { return {}; }
+	iterator end() noexcept { return {storage.end()}; }
 	const_iterator end() const noexcept { return {}; }
 	const_iterator cend() const noexcept { return {}; }
 
