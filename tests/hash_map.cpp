@@ -138,6 +138,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 TEST_CASE("Non empty hash map", "[hash_map]")
 {
 	hash_map map{};
+	map.insert(0, 1);
 	map.insert(1, 2);
 	map.insert(2, 3);
 	map.insert(3, 4);
@@ -167,5 +168,22 @@ TEST_CASE("Non empty hash map", "[hash_map]")
 	{
 		auto dist = std::distance(map.begin(), map.end());
 		REQUIRE(dist == map.size());
+	}
+
+	SECTION("Find all keys iterated")
+	{
+		int arr[6] = { 0,0,0,0,0,0 };
+		for (auto &slot: map) {
+			++arr[slot.key];
+		}
+		for (int i = 0; i < 6; i++) {
+			REQUIRE(arr[i] == 1);
+		}
+	}
+
+	SECTION("Delete key, and reinsert the same key with the value")
+	{
+		map.erase(5);
+		map.insert(5, 6);
 	}
 }

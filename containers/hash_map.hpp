@@ -115,16 +115,20 @@ public:
 
 	private:
 		typename hash_map::storage_type::iterator slot;
+		typename hash_map::storage_type::iterator end;
 
 	public:
 		iterator() = default;
 
-		iterator(typename hash_map::storage_type::iterator first)
-			: slot(first) {}
+		iterator(typename hash_map::storage_type::iterator first, typename hash_map::storage_type::iterator last)
+			: slot(first), end(last) {}
 
 		iterator& operator++() noexcept
 		{
-			++slot;
+			do {
+				++slot;
+			} while (slot != end && slot->state != slot_type::full);
+
 			return *this;
 		}
 
@@ -205,7 +209,7 @@ public:
 			if(iter->state == slot_type::empty) return end();
 		}
 
-		return { iter };
+		return iterator{ iter , storage.end()};
 	}
 
 	const_iterator find(key_type) const noexcept { return {}; }
@@ -223,11 +227,12 @@ public:
 
 	iterator begin() noexcept
 	{
-		return {
+		return iterator{
 			std::find_if(
 				std::begin(storage),
 				std::end(storage),
-				[&](auto& slot) { return slot.state == slot_type::full; })
+				[&](auto& slot) { return slot.state == slot_type::full; }),
+			storage.end()
 		};
 	}
 
@@ -243,7 +248,7 @@ public:
 
 	const_iterator cbegin() const noexcept { return begin(); }
 
-	iterator end() noexcept { return { storage.end() }; }
+	iterator end() noexcept { return iterator{ storage.end(), storage.end() }; }
 	const_iterator end() const noexcept { return { storage.end() }; }
 	const_iterator cend() const noexcept { return end(); }
 
