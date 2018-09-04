@@ -16,7 +16,9 @@ public:
 		value_type value;
 
 		template<typename... Args>
-		key_value_pair(key_type key, Args&&... args) : key{ key }, value{ std::forward<Args>(args)... } {}
+		key_value_pair(key_type key, Args&&... args)
+			: key{ key },
+			  value{ std::forward<Args>(args)... } {}
 	};
 
 private:
@@ -81,8 +83,12 @@ public:
 
 	public:
 		const_iterator() = default;
-		const_iterator(typename hash_map::storage_type::const_iterator first) noexcept : slot(first) {}
-		const_iterator(iterator other) noexcept : slot(other.slot) {}
+
+		const_iterator(typename hash_map::storage_type::const_iterator first) noexcept
+			: slot(first) {}
+
+		const_iterator(iterator other) noexcept
+			: slot(other.slot) {}
 
 
 		const_iterator& operator++() noexcept { return *this; }
@@ -105,7 +111,7 @@ public:
 		using value_type = key_value_pair;
 		using reference = key_value_pair&;
 		using pointer = key_value_pair*;
-		using differnce_type = std::ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 
 	private:
 		typename hash_map::storage_type::iterator slot;
@@ -116,11 +122,15 @@ public:
 		iterator(typename hash_map::storage_type::iterator first)
 			: slot(first) {}
 
-		iterator& operator++() noexcept { return *this; }
+		iterator& operator++() noexcept
+		{
+			++slot;
+			return *this;
+		}
 
 		iterator operator++(int) noexcept
 		{
-			return {};
+			return *this;
 		}
 
 		reference operator*() const noexcept { return slot->pair(); }
@@ -155,7 +165,8 @@ public:
 		}
 		else
 		{
-			if ((size() + 1.0) / capacity() > max_load_factor()) {
+			if((size() + 1.0) / capacity() > max_load_factor())
+			{
 				rehash(capacity() * 2);
 			}
 			auto slot = std::next(storage.begin(), hash(key));
@@ -168,17 +179,15 @@ public:
 		return begin();
 	}
 
-	void erase(const_iterator iter) 
+	void erase(const_iterator iter)
 	{
-		if (iter != end()) const_cast<slot_type&>(*iter.slot).release();
-
+		if(iter != end()) const_cast<slot_type&>(*iter.slot).release();
+		else throw std::out_of_range{ "cannot delete out-of-range iterator" };
 	}
 
 	void erase(key_type key)
 	{
-		auto iter = find(key);
-
-		erase(iter);
+		erase(find(key));
 	}
 
 	iterator find(key_type key)
@@ -188,12 +197,12 @@ public:
 		auto iter = std::next(storage.begin(), hash(key)); // storage.begin();
 
 		iter = probe(iter, slot_type::full, slot_type::deleted);
-		if (iter->state == slot_type::empty) return end();
+		if(iter->state == slot_type::empty) return end();
 
 		while(iter->pair().key != key)
 		{
 			iter = probe(std::next(iter), slot_type::full, slot_type::deleted);
-			if (iter->state == slot_type::empty) return end();
+			if(iter->state == slot_type::empty) return end();
 		}
 
 		return { iter };
@@ -222,49 +231,57 @@ public:
 		};
 	}
 
-	const_iterator begin() const noexcept 
-	{ 
+	const_iterator begin() const noexcept
+	{
 		return {
-				std::find_if(
-					std::begin(storage),
-					std::end(storage),
-					[&](auto& slot) { return slot.state == slot_type::full; })
+			std::find_if(
+				std::begin(storage),
+				std::end(storage),
+				[&](auto& slot) { return slot.state == slot_type::full; })
 		};
 	}
-	const_iterator cbegin() const noexcept { return {}; }
+
+	const_iterator cbegin() const noexcept { return begin(); }
 
 	iterator end() noexcept { return { storage.end() }; }
 	const_iterator end() const noexcept { return { storage.end() }; }
-	const_iterator cend() const noexcept { return {}; }
+	const_iterator cend() const noexcept { return end(); }
 
 private:
 	int hash(key_type) const noexcept { return 0; }
-	void rehash(size_type newCapacity) 
+
+	void rehash(size_type newCapacity)
 	{
 		auto copy = std::move(storage);
 		storage.clear();
 		count = 0;
 		storage.resize(newCapacity);
-		for (auto &slot : copy)
+		for(auto& slot : copy)
 		{
-			if (slot.state == slot_type::full) {
+			if(slot.state == slot_type::full)
+			{
 				insert(slot.pair().key, std::move(slot.pair().value));
 			}
 		}
 	}
 
-	typename storage_type::iterator probe(typename storage_type::iterator slot, slot_type::state_type expected, slot_type::state_type skip = slot_type::none)
+	typename storage_type::iterator probe(
+		typename storage_type::iterator slot,
+		slot_type::state_type expected,
+		slot_type::state_type skip = slot_type::none)
 	{
-		if (slot == storage.end()) slot = storage.begin();
+		if(slot == storage.end()) slot = storage.begin();
 		auto initial = slot;
 
-		if ((slot->state & expected) == slot_type::none) {
+		if((slot->state & expected) == slot_type::none)
+		{
 			do
 			{
 				++slot;
-				if (slot == storage.end()) slot = storage.begin();
-				if (slot == initial) throw std::out_of_range("infinite probe");
-			} while ((slot->state & skip) != slot_type::none);
+				if(slot == storage.end()) slot = storage.begin();
+				if(slot == initial) throw std::out_of_range("infinite probe");
+			}
+			while((slot->state & skip) != slot_type::none);
 		}
 
 		return slot;

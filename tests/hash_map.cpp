@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "hash_map.hpp"
+#include <algorithm>
 
 TEST_CASE("An empty hash map", "[hash_map]")
 {
@@ -13,6 +14,10 @@ TEST_CASE("An empty hash map", "[hash_map]")
 
 	REQUIRE(map.begin() == map.end());
 	REQUIRE(cmap.begin() == cmap.end());
+
+	REQUIRE(map.cbegin() == cmap.begin());
+	REQUIRE(map.cend() == cmap.end());
+
 	REQUIRE(map.load_factor() == 0.0);
 	REQUIRE(map.max_load_factor() >= map.load_factor());
 
@@ -156,5 +161,11 @@ TEST_CASE("Non empty hash map", "[hash_map]")
 	SECTION("remove a nonexistant element")
 	{
 		REQUIRE_THROWS(map.erase(7));
+	}
+
+	SECTION("iteration only traverses existing elements")
+	{
+		auto dist = std::distance(map.begin(), map.end());
+		REQUIRE(dist == map.size());
 	}
 }
