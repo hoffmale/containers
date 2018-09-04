@@ -30,9 +30,10 @@ private:
 		std::aligned_storage_t<sizeof(key_value_pair), alignof(key_value_pair)> content{};
 		state_type state = state_type::empty;
 
+		slot_type() = default;
 		slot_type(slot_type&& other) noexcept {}
 		slot_type(const slot_type& other) {}
-		~slot_type() noexcept {}
+		~slot_type() noexcept = default;
 
 		slot_type& operator=(slot_type&& other) noexcept { return *this; }
 		slot_type& operator=(const slot_type& other) { return *this; }
@@ -61,11 +62,11 @@ public:
 		using differnce_type = std::ptrdiff_t;
 
 	private:
-		typename storage_type::const_iterator slot{};
+		typename hash_map::storage_type::const_iterator slot;
 
 	public:
-		const_iterator() noexcept = default;
-		const_iterator(typename storage_type::const_iterator first) noexcept {}
+		const_iterator() = default;
+		const_iterator(typename hash_map::storage_type::const_iterator first) noexcept {}
 		const_iterator(iterator other) noexcept {}
 
 
@@ -92,11 +93,11 @@ public:
 		using differnce_type = std::ptrdiff_t;
 
 	private:
-		typename storage_type::iterator slot;
+		typename hash_map::storage_type::iterator slot;
 
 	public:
 		iterator() = default;
-		iterator(typename storage_type::iterator first) {}
+		iterator(typename hash_map::storage_type::iterator first) {}
 
 		iterator& operator++() noexcept { return *this; }
 		iterator operator++(int) noexcept {
@@ -119,11 +120,15 @@ public:
 
 	// mutators
 
-	iterator insert(key_type, const value_type&) { return {}; }
-	iterator insert(key_type, value_type&&) { return {}; }
+	iterator insert(key_type key, const value_type& value) { return {}; }
+	iterator insert(key_type key, value_type&& value) { return emplace(key, std::move(value)); }
 
 	template<typename... Args>
-	iterator emplace(key_type, Args&&... args) { return {}; }
+	iterator emplace(key_type, Args&&... args)
+	{
+		storage.push_back(slot_type{});
+		return {};
+	}
 
 	void erase(const_iterator) {}
 	void erase(key_type) {}
@@ -133,9 +138,9 @@ public:
 
 	// queries
 
-	bool empty() const noexcept { return true; }
-	size_type size() const noexcept { return 0; }
-	size_type capacity() const noexcept { return 0; }
+	bool empty() const noexcept { return storage.empty(); }
+	size_type size() const noexcept { return storage.size(); }
+	size_type capacity() const noexcept { return storage.capacity(); }
 
 	double load_factor() const noexcept { return 0.0; }
 	double max_load_factor() const noexcept { return 0.0; }
