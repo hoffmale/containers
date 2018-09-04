@@ -37,4 +37,11 @@ TEST_CASE("An empty hash map", "[hash_map]")
 
 		REQUIRE(map.size() == 1u);
 	}
+
+	SECTION("Inserting an element means it can be retrieved")
+	{
+		map.insert(2, 4);
+		REQUIRE(map.find(2) != map.end());
+	}
 }
+
