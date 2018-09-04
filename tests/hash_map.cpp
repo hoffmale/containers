@@ -3,9 +3,11 @@
 #include "hash_map.hpp"
 #include <algorithm>
 
+using hash_map_impl = hash_map<int, int, std::hash<int>>;
+
 TEST_CASE("An empty hash map", "[hash_map]")
 {
-	hash_map map{};
+	hash_map_impl map{};
 	const auto& cmap = map;
 
 	REQUIRE(map.empty());
@@ -68,7 +70,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		auto iter = map.find(2);
 
 		REQUIRE(iter != map.end());
-		REQUIRE(hash_map::const_iterator{iter} != cmap.end());
+		REQUIRE(typename hash_map_impl::const_iterator{iter} != cmap.end());
 		REQUIRE(iter->key == 2);
 		REQUIRE(iter->value == 4);
 	}
@@ -95,6 +97,24 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		REQUIRE(map.size() == 1);
 	}
 
+	SECTION("Inserting multiple elements returns correct iterators")
+	{
+		static const auto key_one = 1;
+		static const auto value_one = 2;
+		static const auto key_two = 3;
+		static const auto value_two = 4;
+
+		auto iter_one = map.insert(key_one, value_one);
+		auto iter_two = map.insert(key_two, value_two);
+
+		REQUIRE(iter_one != iter_two);
+
+		REQUIRE(iter_one->key == key_one);
+		REQUIRE(iter_one->value == value_one);
+
+		REQUIRE(iter_two->key == key_two);
+		REQUIRE(iter_two->value == value_two);
+	}
 	SECTION("Inserting multiple elements means either can be found")
 	{
 		static const auto key_one = 1;
@@ -133,17 +153,43 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		REQUIRE(map.load_factor() <= Approx(map.max_load_factor()));
 		REQUIRE(map.capacity() > cap);
 	}
+
+	SECTION("hash map grows storage if load grows too large")
+	{
+		auto max_load = int(map.max_load_factor() * map.capacity());
+		auto cap = map.capacity();
+
+		for (auto i = 0; i < max_load; ++i)
+		{
+			map.insert(i, 1);
+			CHECK(map.load_factor() <= Approx(map.max_load_factor()));
+			CHECK(map.capacity() == cap);
+		}
+
+		map.erase(0);
+		map.insert(0, 2);
+
+		REQUIRE(map.capacity() == cap);
+	}
 }
 
 TEST_CASE("Non empty hash map", "[hash_map]")
 {
-	hash_map map{};
+	hash_map_impl map{};
 	map.insert(0, 1);
 	map.insert(1, 2);
 	map.insert(2, 3);
 	map.insert(3, 4);
 	map.insert(4, 5);
 	map.insert(5, 6);
+
+	SECTION("Removing an element decreases size")
+	{
+		auto size = map.size();
+		map.erase(3);
+
+		REQUIRE(map.size() == size - 1);
+	}
 
 	SECTION("Remove element cannot be found again")
 	{
@@ -185,5 +231,35 @@ TEST_CASE("Non empty hash map", "[hash_map]")
 	{
 		map.erase(5);
 		map.insert(5, 6);
+	}
+}
+
+static int counter = 0;
+
+struct my_class
+{
+	my_class() { ++counter; }
+	my_class(my_class&&) = default;
+	my_class(const my_class&) = default;
+	~my_class() { --counter; }
+
+	my_class& operator=(const my_class&) = default;
+	my_class& operator=(my_class&&) = default;
+};
+
+TEST_CASE("generic hash map")
+{
+	REQUIRE(counter == 0);
+
+	SECTION("calls allocators and deallocators correctly")
+	{
+		{
+			hash_map<int, my_class> map{};
+
+			map.emplace(1);
+			REQUIRE(counter == 1);
+		}
+
+		REQUIRE(counter == 0);
 	}
 }
