@@ -10,6 +10,8 @@ TEST_CASE("An empty hash map", "[hash_map]")
 	REQUIRE(map.size() == 0u);
 	REQUIRE(map.capacity() >= 0u);
 
+	REQUIRE(map.begin() == map.end());
+
 	/*SECTION("insert an element")
 	{
 		auto iter = map.insert(1, 2);

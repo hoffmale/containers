@@ -108,7 +108,7 @@ public:
 		pointer operator->() const noexcept { return &slot->pair(); }
 
 		bool operator==(iterator other) const noexcept { return false; }
-		bool operator!=(iterator other) const noexcept { return false; }
+		bool operator!=(iterator other) const noexcept { return !(*this == other); }
 	};
 
 private:
