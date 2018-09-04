@@ -147,6 +147,9 @@ public:
 		}
 		else
 		{
+			if ((size() + 1.0) / capacity() > max_load_factor()) {
+				rehash(capacity() * 2);
+			}
 			auto slot = std::next(storage.begin(), hash(key));
 			slot = probe(slot, slot_type::deleted | slot_type::empty, slot_type::full);
 
@@ -210,7 +213,19 @@ public:
 
 private:
 	int hash(key_type) const noexcept { return 0; }
-	void rehash(size_type) {}
+	void rehash(size_type newCapacity) 
+	{
+		auto copy = std::move(storage);
+		storage.clear();
+		count = 0;
+		storage.resize(newCapacity);
+		for (auto &slot : copy)
+		{
+			if (slot.state == slot_type::full) {
+				insert(slot.pair().key, std::move(slot.pair().value));
+			}
+		}
+	}
 
 	typename storage_type::iterator probe(typename storage_type::iterator slot, slot_type::state_type expected, slot_type::state_type skip = slot_type::none)
 	{

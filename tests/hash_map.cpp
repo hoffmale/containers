@@ -127,3 +127,18 @@ TEST_CASE("An empty hash map", "[hash_map]")
 	}
 }
 
+TEST_CASE("Non empty hash map", "[hash_map]")
+{
+	hash_map map{};
+	map.insert(1, 2);
+	map.insert(2, 3);
+	map.insert(3, 4);
+	map.insert(4, 5);
+	map.insert(5, 6);
+
+	SECTION("Remove element cannot be found again")
+	{
+		map.erase(2);
+		REQUIRE(map.find(2) == map.end());
+	}
+}
