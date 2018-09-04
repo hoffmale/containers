@@ -97,7 +97,7 @@ public:
 
 	public:
 		iterator() = default;
-		iterator(typename hash_map::storage_type::iterator first) {}
+		iterator(typename hash_map::storage_type::iterator first) : slot(first) {}
 
 		iterator& operator++() noexcept { return *this; }
 		iterator operator++(int) noexcept {
@@ -107,7 +107,7 @@ public:
 		reference operator*() const noexcept { return slot->pair(); }
 		pointer operator->() const noexcept { return &slot->pair(); }
 
-		bool operator==(iterator other) const noexcept { return false; }
+		bool operator==(iterator other) const noexcept { return slot == other.slot; }
 		bool operator!=(iterator other) const noexcept { return !(*this == other); }
 	};
 
@@ -147,7 +147,7 @@ public:
 
 	// iterator
 
-	iterator begin() noexcept { return {}; }
+	iterator begin() noexcept { return {storage.begin()}; }
 	const_iterator begin() const noexcept { return {}; }
 	const_iterator cbegin() const noexcept { return {}; }
 
