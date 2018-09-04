@@ -141,4 +141,12 @@ TEST_CASE("Non empty hash map", "[hash_map]")
 		map.erase(2);
 		REQUIRE(map.find(2) == map.end());
 	}
+
+	SECTION("remove element by iterator")
+	{
+		auto match = map.find(4);
+		map.erase(match);
+
+		REQUIRE(map.find(4) == map.end());
+	}
 }

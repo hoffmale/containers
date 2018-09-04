@@ -14,6 +14,9 @@ public:
 	{
 		key_type key;
 		value_type value;
+
+		template<typename... Args>
+		key_value_pair(key_type key, Args&&... args) : key{ key }, value{ std::forward<Args>(args)... } {}
 	};
 
 private:
@@ -37,9 +40,14 @@ private:
 		template<typename... Args>
 		void set(hash_map::key_type key, Args&&... args)
 		{
-			pair().key = key;
-			pair().value = hash_map::value_type(std::forward<Args>(args)...);
+			new(&content) key_value_pair(key, std::forward<Args>(args)...);
 			state = full;
+		}
+
+		void release()
+		{
+			pair().~key_value_pair();
+			state = deleted;
 		}
 
 		slot_type& operator=(slot_type&& other) noexcept { return *this; }
@@ -161,7 +169,13 @@ public:
 	}
 
 	void erase(const_iterator) {}
-	void erase(key_type) {}
+
+	void erase(key_type key)
+	{
+		auto iter = find(key);
+
+		if (iter != end()) iter.slot->release();
+	}
 
 	iterator find(key_type key)
 	{
