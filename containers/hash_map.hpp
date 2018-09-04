@@ -143,7 +143,7 @@ public:
 	void erase(const_iterator) {}
 	void erase(key_type) {}
 
-	iterator find(key_type) noexcept { return begin(); }
+	iterator find(key_type) noexcept { return { --storage.end() }; }
 	const_iterator find(key_type) const noexcept { return {}; }
 
 	// queries

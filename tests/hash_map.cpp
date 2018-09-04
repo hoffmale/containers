@@ -70,6 +70,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 		map.insert(key, value_two);
 
 		REQUIRE(map.find(key)->value == value_two);
+		REQUIRE(map.size() == 1);
 	}
 }
 
