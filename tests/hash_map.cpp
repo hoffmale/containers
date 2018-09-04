@@ -42,7 +42,7 @@ TEST_CASE("An empty hash map", "[hash_map]")
 	{
 		map.insert(1, 2);
 
-		REQUIRE(map.load_factor() > 0.0);
+		REQUIRE(map.load_factor() == Approx(double(map.size()) / map.capacity()));
 	}
 
 	SECTION("inserting an element increases the size")
